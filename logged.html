@@ -1,0 +1,378 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="bootstrap-4.0.0-dist/css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="bootstrap-4.0.0-dist/css/main.css" />
+    <link rel="" type="text/javascript" href="bootstrap-4.0.0-dist/js/bootstrap.js" />
+
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="520338689529-atrehss2kqqejuk1056qaphik9hmg9b9.apps.googleusercontent.com">
+    <meta name="google-signin-client_id" content="520338689529-3fssko3sv13sjluu4cd7ftsdkivh59dh.apps.googleusercontent.com">
+    <!--Este se inyecta a la de a huevo -->
+    <style type="text/css">
+       html { height: 100% }
+       body { height: 100%; margin: 0; padding: 0 }
+       #map_canvas { height: 100% }
+     </style>
+
+     <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+     <script async defer
+     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDxuma0ZigWEZMRX4xxLWMz3zIqxVYIykM&callback=initMap">
+     </script>
+
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+     <script type="text/javascript">
+
+     var profile;
+     function onSignIn(googleUser) {
+        profile = googleUser.getBasicProfile();
+
+     }
+
+     function signOut() {
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+          console.log('User signed out.');
+        });
+     }
+
+
+             var mapOptions = null;
+             var map = null;
+
+             var infowindow;
+             (
+                 function ()
+                 {
+                     google.maps.Map.prototype.markers = new Array();
+                     google.maps.Map.prototype.getMarkers = function ()
+                     {
+                     return this.markers
+                     };
+
+                     google.maps.Map.prototype.clearMarkers = function ()
+                     {
+                         for (var i = 0; i < this.markers.length; i++) {
+                             this.markers[i].setMap(null);
+                         }
+                     this.markers = new Array();
+                     };
+
+                     google.maps.Marker.prototype._setMap = google.maps.Marker.prototype.setMap;
+                     google.maps.Marker.prototype.setMap = function (map)
+                     {
+                         if (map) {
+                             map.markers[map.markers.length] = this;
+                         }
+                         this._setMap(map);
+                     }
+                 }
+             )
+             ();
+
+             var marker;
+
+             function initMap(){
+
+               lat = 19.0977382;
+               lng = -98.5955483;
+
+
+                 mapOptions = {
+                     center: new google.maps.LatLng(lat, lng),
+                     zoom: 18,
+                     mapTypeId: google.maps.MapTypeId.ROADMAP
+                 };
+
+                 map = new google.maps.Map(document.getElementById("map_canvas"),
+                     mapOptions);
+
+                 google.maps.event.addListener(map, 'click', function (event) {
+
+                     lat =event.latLng.lat();
+                     lng=event.latLng.lng();
+
+                     /*document.getElementById('lat').value=lat;
+                     document.getElementById('lng').value=lng;*/
+
+                     map.clearMarkers();
+                     drawMarker();
+                 });
+
+                 drawMarker();
+                 obtenerClima();
+
+
+             }
+
+
+             function drawMarker()
+             {
+
+                 var infowindow = new google.maps.InfoWindow();
+                 var i;
+                 //var nombre = sessionStorage.nombreCliente;
+                 var message = "Astros";
+
+                 var pinColor = "0000FF";
+                 var charMarker = "A";
+
+                     var pinImage = new google.maps.MarkerImage
+
+                     ("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=" + charMarker + "|" + pinColor,
+                             new google.maps.Size(40, 60),
+                             new google.maps.Point(0, 0),
+                             new google.maps.Point(20, 60));
+
+                     marker = new google.maps.Marker({
+                         position: new google.maps.LatLng(lat, lng),
+                         icon: pinImage,
+                         title: '' + message,
+                         map: map
+                     });
+
+
+
+                     google.maps.event.addListener(marker, 'click', (function (marker, i) {
+                         return function () {
+                             infowindow.setContent(document.getElementById('markerMessage').value);
+                             infowindow.open(map, marker);
+                         }
+                     })(marker, i));
+
+             }
+
+         function obtenerClima()
+         {
+             //alert("obteniendo clima ...");
+
+             var lat = 19.0977382;
+             var lng = -98.5955483;
+             var apiKey = "2af72ef62258728d72777bef612f2a3e";
+             var clima;
+           $.getJSON("http://api.openweathermap.org/data/2.5/weather?lat=" +
+             lat + "&lon=" + lng + "&appid=" + apiKey, function(data)
+             {
+                 //alert(JSON.stringify(data));
+                 clima = JSON.stringify(data);
+
+                 document.getElementById('temp').innerHTML = data.main.temp;
+                 document.getElementById('wind').innerHTML = data.wind.speed;
+                 document.getElementById('sunrise').innerHTML = data.sys.sunrise;
+                 document.getElementById('sunset').innerHTML = data.sys.sunset;
+                 document.getElementById('clouds').innerHTML = data.clouds.all;
+             })
+
+
+
+         }
+
+
+
+         </script>
+
+         <script>
+           // This is called with the results from from FB.getLoginStatus().
+           function statusChangeCallback(response) {
+             console.log('statusChangeCallback');
+             console.log(response);
+             // The response object is returned with a status field that lets the
+             // app know the current login status of the person.
+             // Full docs on the response object can be found in the documentation
+             // for FB.getLoginStatus().
+             if (response.status === 'connected') {
+               // Logged into your app and Facebook.
+               testAPI();
+             } else {
+               // The person is not logged into your app or we are unable to tell.
+               document.getElementById('status').innerHTML = 'Please log ' +
+                 'into this app.';
+             }
+           }
+
+           // This function is called when someone finishes with the Login
+           // Button.  See the onlogin handler attached to it in the sample
+           // code below.
+           function checkLoginState() {
+             FB.getLoginStatus(function(response) {
+               statusChangeCallback(response);
+             });
+           }
+
+           window.fbAsyncInit = function() {
+             FB.init({
+               appId      : '1067162056774863',
+               cookie     : true,  // enable cookies to allow the server to access
+                                   // the session
+               xfbml      : true,  // parse social plugins on this page
+               version    : 'v2.8' // use graph api version 2.8
+             });
+
+             // Now that we've initialized the JavaScript SDK, we call
+             // FB.getLoginStatus().  This function gets the state of the
+             // person visiting this page and can return one of three states to
+             // the callback you provide.  They can be:
+             //
+             // 1. Logged into your app ('connected')
+             // 2. Logged into Facebook, but not your app ('not_authorized')
+             // 3. Not logged into Facebook and can't tell if they are logged into
+             //    your app or not.
+             //
+             // These three cases are handled in the callback function.
+
+             FB.getLoginStatus(function(response) {
+               statusChangeCallback(response);
+
+               if(response.status != "connected" && profile == null){
+                 window.location.href = "/index.html";
+               }
+
+
+             });
+
+
+
+             FB.Event.subscribe("auth.logout", function() { window.location.href = "index.html"; });
+
+           };
+
+           // Load the SDK asynchronously
+           (function(d, s, id) {
+             var js, fjs = d.getElementsByTagName(s)[0];
+             if (d.getElementById(id)) return;
+             js = d.createElement(s); js.id = id;
+             js.src = "https://connect.facebook.net/en_US/sdk.js";
+             fjs.parentNode.insertBefore(js, fjs);
+           }(document, 'script', 'facebook-jssdk'));
+
+           // Here we run a very simple test of the Graph API after login is
+           // successful.  See statusChangeCallback() for when this call is made.
+           function testAPI() {
+             console.log('Welcome!  Fetching your information.... ');
+             FB.api('/me', function(response) {
+               console.log('Successful login for: ' + response.name);
+
+               document.getElementById('status').innerHTML =
+                 'Thanks for logging in, ' + response.name + '!';
+             });
+           }
+         </script>
+
+  </head>
+
+  <body onload="initMap()">
+
+    <div class="inicio">
+      <!--NAVIGATION-->
+      <section role="navigation">
+        <nav class="navbar navbar-expand-lg navbar-light">
+          <a class="navbar-brand" href="#">Astros</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item active">
+                <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="index.html#about">About</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="index.html#map">Location</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="index.html#youtube">Videos</a>
+              </li>
+              <li class="nav-item">
+                <fb:login-button autologoutlink=true scope="public_profile,email" onlogin="checkLoginState();">
+              </fb:login-button>
+
+              </li>
+              <li>
+                <a href="#" onclick="signOut();">Sign out</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </section>
+
+      <br />
+      <br />
+      <br />
+      <!--Main page section-->
+      <div class="container">
+          <div class="">
+            <h1>  Astros package shopping kart  </h1>
+          </div>
+
+          <br />
+          <div class ="row">
+            <div class ="col-md-4 text-center">
+              <h3>Orion</h3>
+              <br />
+              <img src ="img/orion.jpg"  class="img-responsive" height="300" width="300"/>
+              <br />
+              Our basic package. This will give you full-day access to our unique Astrophotography area.
+              Camera and telescope rental not included.
+              <h4><strong>500 MXN</strong></h4>
+            </div>
+            <div class ="col-md-4 text-center">
+              <h3>Andromeda</h3>
+              <br />
+              <img src ="img/andromeda.jpg"  class="img-responsive" height="300" width="300"/>
+              <br />
+              Want to improve your astrophotography experience? The Andromeda package grants you free access to
+              our buffet in the cafeteria.
+              Camera and telescope rental not included.
+              <h4><strong>800 MXN</strong></h4>
+            </div>
+            <div class ="col-md-4 text-center">
+              <h3>Milky Way</h3>
+              <br />
+              <img src ="img/milkyway.jpg"  class="img-responsive" height="300" width="300"/>
+              <br />
+              The complete experience. You'll be able to access our buffet and also you are free to choose your camera and telescope.
+              <h4><strong>1000 MXN</strong></h4>
+            </div>
+            <hr />
+            <div class="col-md-12 text-center">
+              <hr />
+              <center>
+                <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+                    <input type="hidden" name="cmd" value="_s-xclick">
+                    <table>
+                    <tr><td><input type="hidden" name="on0" value="Paquete"></td></tr><tr><td><select name="os0">
+                    	<option value="Orion">Orion $500.00 MXN</option>
+                    	<option value="Andromeda">Andromeda $800.00 MXN</option>
+                    	<option value="Milky Way">Milky Way $1,000.00 MXN</option>
+                    </select> </td></tr>
+                    </table>
+                    <input type="hidden" name="currency_code" value="MXN">
+                    <input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+                    ">
+                    <input type="image" src="https://www.paypalobjects.com/es_XC/MX/i/btn/btn_buynowCC_LG.gif" border="0" name="submit" alt="PayPal, la forma más segura y rápida de pagar en línea.">
+                    <img alt="" border="0" src="https://www.paypalobjects.com/es_XC/i/scr/pixel.gif" width="1" height="1">
+                  </form>
+              </center>
+            </div>
+
+
+
+          </div>
+      </div>
+
+      <hr />
+
+
+
+      <footer>
+        Astros 2017
+      </footer>
+
+    </div>
+
+  </body>
+</html>

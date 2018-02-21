@@ -1,0 +1,26 @@
+.navbar
+{
+  background-color: rgb(183, 183, 183);
+  color: rgb(0,0,0);
+  position: fixed;
+}
+
+.inicio
+{
+  background-color: rgb(28, 0, 112);
+  color: rgb(255,255,255);
+
+}
+
+.container-fluid
+{
+  border-radius: 5px;
+}
+
+.jumbotron
+{
+  background-image: url("/../../img/stars.jpg");
+  background-color: rgb(28, 0, 112);
+  color: rgb(255,255,255);
+  border-radius: 5px;
+}
