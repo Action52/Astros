@@ -7,6 +7,9 @@ var app=express()
 
 app.use('/bootstrap-4.0.0-dist', express.static(path.join(__dirname, './bootstrap-4.0.0-dist')));
 
+app.use('/img', express.static(path.join(__dirname, './img')));
+
+
 app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname + '/index.html'));
 });
