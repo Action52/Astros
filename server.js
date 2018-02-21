@@ -18,6 +18,10 @@ app.get('/logged', function (req, res) {
     res.sendFile(path.join(__dirname + '/logged.html'));
 });
 
+app.get('/index', function (req, res) {
+    res.sendFile(path.join(__dirname + '/logged.html'));
+});
+
 app.listen(PORT);
 
 console.log('Running on port ' + PORT);
